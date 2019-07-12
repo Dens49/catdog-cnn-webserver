@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <title>Cat or dog?</title>
+</head>
+
+<body>
+    <h1>Cat or dog?</h1>
+    
+    <p>This is a simple CNN example using the <a href="https://medium.com/nybles/create-your-first-image-recognition-classifier-using-cnn-keras-and-tensorflow-backend-6eaab98d14dd">cats & dogs</a> example.</p>
+    <p>You can upload a picture of your cat or dog and let it be classified by a pre-trained classifier with 80.24% test-accuracy.</p>
+    <p>Result: <span id="result"></span></p>
+    
+    <input type="file" id="imgInput" accept="image/*" capture="camera">
+
+    <script>
+        let input = document.querySelector("input[type=file]");
+        input.onchange = function () {
+            const file = input.files[0];
+            upload(file);
+        };
+
+        function upload(file) {
+            let form = new FormData();
+            let xhr = new XMLHttpRequest();
+            form.append("image", file);
+            xhr.open("post", "", true);
+            xhr.send(form);
+        }
+    </script>
+</body>
+
+</html>
