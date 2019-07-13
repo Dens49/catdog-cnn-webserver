@@ -13,20 +13,38 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         with open("index.html", "r") as file:
             self.respond(file.read(), 200)
 
-   # TODO
     def do_POST(self):
         form = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
             environ={"REQUEST_METHOD": "POST",
                     "CONTENT_TYPE": self.headers['Content-Type']})
-        uploaded_file = form["image"]
-        print(self.rfile, flush = True)
-        if uploaded_file:
-            print("uploaded_file has type", uploaded_file.content_type, flush = True)
-            #store_path = os.path.dirname(os.path.realpath(__file__)) + "/" + createRandomString(10) + ".jpg"
-            #with open(self.store_path, "wb") as fh:
-            #    fh.write(uploaded_file.file.read())
+        fileitem = form["file"]
+        response = {}
+        responseCode = 400
+
+        if fileitem.file:
+            filename = os.path.basename(fileitem.filename)
+            tmpfilename = os.path.dirname(os.path.realpath(__file__)) + "/tmp_images/" + filename
+            # TODO: check whether
+            # - directory tmp_images exists
+            # - filename already exists (allow overwrite or append random string to file for differentiation?)
+            with open(tmpfilename, "wb") as fh:
+                fh.write(fileitem.file.read())
+            print("The file " + filename + " was uploaded successfully", flush = True)
+        else:
+            response["success"] = False
+            response["reason"] = "There was an error with saving the uploaded file"
+            responseCode = 500
+        
+        # TODO: prediction
+        prediction = "cat"
+        if (True):
+            response["success"] = True
+            response["result"] = {"prediction": prediction}
+            responseCode = 200
+
+        self.respond(toJsonString(response), responseCode)
 
     def respond(self, responseString, responseCode):
         response = BytesIO()

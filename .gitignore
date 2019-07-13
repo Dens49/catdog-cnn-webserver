@@ -1,1 +1,6 @@
 dataset/*
+
+# exclude everything, except .gitkeep
+# in order to keep the directory in repo
+tmp_images/*
+!tmp_images/.gitkeep 

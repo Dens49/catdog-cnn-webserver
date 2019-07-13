@@ -8,27 +8,44 @@
 
 <body>
     <h1>Cat or dog?</h1>
-    
-    <p>This is a simple CNN example using the <a href="https://medium.com/nybles/create-your-first-image-recognition-classifier-using-cnn-keras-and-tensorflow-backend-6eaab98d14dd">cats & dogs</a> example.</p>
-    <p>You can upload a picture of your cat or dog and let it be classified by a pre-trained classifier with 80.24% test-accuracy.</p>
+
+    <p>This is a simple CNN example using the <a
+            href="https://medium.com/nybles/create-your-first-image-recognition-classifier-using-cnn-keras-and-tensorflow-backend-6eaab98d14dd">cats
+            & dogs</a> example.</p>
+    <p>You can upload a picture of your cat or dog and let it be classified by a pre-trained classifier with 80.24%
+        test-accuracy.</p>
     <p>Result: <span id="result"></span></p>
-    
+
     <input type="file" id="imgInput" accept="image/*" capture="camera">
+    </br>
+    <button id="upload">Upload</button>
 
     <script>
-        let input = document.querySelector("input[type=file]");
-        input.onchange = function () {
-            const file = input.files[0];
-            upload(file);
-        };
+        document.getElementById("upload").addEventListener("click", e => {
+            e.preventDefault();
 
-        function upload(file) {
-            let form = new FormData();
-            let xhr = new XMLHttpRequest();
-            form.append("image", file);
-            xhr.open("post", "", true);
-            xhr.send(form);
-        }
+            const files = document.querySelector("[type=file]").files;
+            const formData = new FormData();
+            formData.append("file", files[0]);
+            const resultElement = document.getElementById("result");
+
+            if (files.length == 1) {
+                fetch("", {
+                    method: "POST",
+                    body: formData
+                }).then(response => response.json())
+                .then(response => {
+                    if (response["success"] == true) {
+                        resultElement.innerHTML = "The image was predicted to be a: <strong>" + response["result"]["prediction"] + "</strong>";
+                    }
+                }).catch(error => {
+                    console.log(error);
+                    resultElement.innerHTML = "<span style='color: red;'>Error: " + error + "</span>";
+                });
+            } else {
+                resultElement.innerHTML = "<span style='color: red;'>You need to select file to upload first!</span>";
+            }
+        });
     </script>
 </body>
 

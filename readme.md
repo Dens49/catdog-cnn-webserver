@@ -10,8 +10,8 @@ The data that `train.py` expects in directory *dataset* can be found here: https
 - script for training the classifier
 - script for prediction using the trained classifier
 - webserver GET
+- webserver POST: upload image file to webserver
 
 ### TODOs
-- webserver POST: upload image file to webserver
-- do prediction for that image file
-- return prediction to browser
+- do actual prediction for that image file
+- handle duplicate filenames and non-existing target directory
