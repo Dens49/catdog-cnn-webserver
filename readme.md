@@ -15,3 +15,4 @@ The data that `train.py` expects in directory *dataset* can be found here: https
 ### TODOs
 - do actual prediction for that image file
 - handle duplicate filenames and non-existing target directory
+- add anaconda environment description to the repository
