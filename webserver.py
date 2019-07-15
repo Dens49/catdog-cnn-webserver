@@ -1,6 +1,7 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from PIL import Image
 from io import BytesIO
+from pathlib import Path
 import json
 import sys
 import cgi
@@ -31,10 +32,18 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             filename = os.path.basename(fileitem.filename)
             img = Image.open(BytesIO(fileitem.file.read()))
             if shouldSaveUploadedImage:
-                # TODO: check whether
-                # - directory tmp_images exists
-                # - filename already exists (allow overwrite or append random string to file for differentiation?)
-                tmpfilename = os.path.dirname(os.path.realpath(__file__)) + "/tmp_images/" + filename
+                # create target dir if it doesn't exist
+                tmpDir = Path(os.path.dirname(os.path.realpath(__file__)) + "/tmp_images")
+                if not (tmpDir.exists() & tmpDir.is_dir()):
+                    os.mkdir(str(tmpDir))
+                tmpfilename = tmpDir / filename
+
+                # add random string to filename (before .jpg) if file already exists
+                if tmpfilename.exists() & tmpfilename.is_file():
+                    tmpfilenameSplit = str(tmpfilename).split(".")
+                    tmpfilenameSplit[-2] = tmpfilenameSplit[-2] + "_" + createRandomString(10)
+                    tmpfilename =  ".".join(tmpfilenameSplit)
+
                 img.save(tmpfilename)
                 print("The file " + filename + " was saved successfully to " + tmpfilename, flush = True)
             
