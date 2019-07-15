@@ -1,4 +1,5 @@
 dataset/*
+__pycache__
 
 # exclude everything, except .gitkeep
 # in order to keep the directory in repo

@@ -1,5 +1,5 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
-
+from PIL import Image
 from io import BytesIO
 import json
 import sys
@@ -7,6 +7,10 @@ import cgi
 import random
 import os
 import string
+
+from predict import predictFromPILImg
+
+shouldSaveUploadedImage = False
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -25,24 +29,25 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
         if fileitem.file:
             filename = os.path.basename(fileitem.filename)
-            tmpfilename = os.path.dirname(os.path.realpath(__file__)) + "/tmp_images/" + filename
-            # TODO: check whether
-            # - directory tmp_images exists
-            # - filename already exists (allow overwrite or append random string to file for differentiation?)
-            with open(tmpfilename, "wb") as fh:
-                fh.write(fileitem.file.read())
-            print("The file " + filename + " was uploaded successfully", flush = True)
+            img = Image.open(BytesIO(fileitem.file.read()))
+            if shouldSaveUploadedImage:
+                # TODO: check whether
+                # - directory tmp_images exists
+                # - filename already exists (allow overwrite or append random string to file for differentiation?)
+                tmpfilename = os.path.dirname(os.path.realpath(__file__)) + "/tmp_images/" + filename
+                img.save(tmpfilename)
+                print("The file " + filename + " was saved successfully to " + tmpfilename, flush = True)
+            
+            # do prediction
+            prediction = predictFromPILImg(img)
+            print("prediction for file " + filename + ": " + prediction, flush = True)
+            response["success"] = True
+            response["result"] = {"prediction": prediction}
+            responseCode = 200
         else:
             response["success"] = False
             response["reason"] = "There was an error with saving the uploaded file"
             responseCode = 500
-        
-        # TODO: prediction
-        prediction = "cat"
-        if (True):
-            response["success"] = True
-            response["result"] = {"prediction": prediction}
-            responseCode = 200
 
         self.respond(toJsonString(response), responseCode)
 
@@ -53,6 +58,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(response.getvalue())
 
+# helpers
 def bytesMsgToString(byteMsg):
     return str(byteMsg, "utf-8")
 
